@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from catalog.models import Book, Author, BookInstance, Genre
+from pprint import pprint
 
 # Create your views here.
 def index (request):
@@ -49,3 +50,10 @@ class AuthorListView(generic.ListView):
 
 class AuthorDetailView(generic.DetailView):
     model = Author
+
+    def get_context_data(self, **kwargs):
+        context = super(AuthorDetailView, self).get_context_data(**kwargs)
+        author_id = self.request.path.split('/')[-1]
+        works = Book.objects.filter(author__id__exact=author_id)
+        context['works'] = works
+        return context

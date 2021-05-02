@@ -5,5 +5,12 @@
 
   <p>{{ author.date_of_birth }} ~ {{ author.date_of_death }}</p>
 
+  <h2> Literary Work </h2>
+  <ul>
+  {% for work in works %}
+    <li><a href="{{ work.get_absolute_url }}">{{ work.title }}</a></li>
+  {% endfor %}
+  </ul>
+
   </div>
 {% endblock %}
