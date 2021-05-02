@@ -16,8 +16,9 @@ def index (request):
     num_authors = Author.objects.count()
 
     # Filter Genre books
+    num_dorama = Book.objects.filter(genre__name__icontains='science').count()
+    # num_dorama = Book.objects.filter(genre__contains='dorama').count()
     # num_dorama = Book.objects.filter(genre__exact='dorama').count()
-    num_dorama = Book.objects.count()
 
     context = {
         'num_books': num_books,
