@@ -41,11 +41,3 @@ class BookListView(generic.ListView):
 
 class BookDetailView(generic.DetailView):
     model = Book
-
-    def book_detail_view(request, primary_key):
-        try:
-            book = Book.objects.get(pk=primary_key)
-        except Book.DoesNotExist:
-            raise Http404('Book does not exist')
-
-        return render(request, 'catalog/book_detail.html', context={'book': book})
