@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+from datetime import date
 
 # Create your models here.
 class Genre(models.Model):
@@ -63,6 +65,14 @@ class BookInstance(models.Model):
         default='m',
         help_text='Book availability',
     )
+
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    @property
+    def is_overdue(self):
+        if self.due_back and date.today() > self.due_back:
+            return True
+        return False
 
     class Meta:
         ordering = ['due_back']
