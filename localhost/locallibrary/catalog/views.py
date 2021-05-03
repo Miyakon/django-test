@@ -62,9 +62,9 @@ class AuthorDetailView(generic.DetailView):
         context['works'] = works
         return context
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
-class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
+class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     """Generic class-based view listing books on loan to current user."""
     model = BookInstance
     template_name ='catalog/bookinstance_list_borrowed_user.html'
@@ -72,3 +72,13 @@ class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
 
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
+
+class BorrowedListView(LoginRequiredMixin, PermissionRequiredMixin, generic.ListView):
+    """ Generic class-based view listing book borrowed. """
+    model = BookInstance
+    template_name = 'catalog/borrowed_list.html'
+    paginate_by = 10
+    permission_required = ('catalog.can_view_borrowed')
+
+    def get_queryset(self):
+        return BookInstance.objects.filter(status__exact='o')
