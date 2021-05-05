@@ -142,8 +142,8 @@ class AuthorDelete(PermissionLibrarian, DeleteView):
 
 class BookCreate(PermissionLibrarian, CreateView):
     model = Book
-    fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
-    initial = {'date_of_death': '11/06/2020'}
+    fields = ['title', 'author', 'summary', 'isbn', 'genre']
+    initial = {'Summary': 'Summary'}
 
 class BookUpdate(PermissionLibrarian, UpdateView):
     model = Book
@@ -151,4 +151,4 @@ class BookUpdate(PermissionLibrarian, UpdateView):
 
 class BookDelete(PermissionLibrarian, DeleteView):
     model = Book
-    success_url = reverse_lazy('author')
+    success_url = reverse_lazy('books')
