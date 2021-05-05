@@ -124,17 +124,31 @@ def renew_book_librarian(request, pk):
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 
-from catalog.models import Author
+class PermissionLibrarian(LoginRequiredMixin, PermissionRequiredMixin):
+    permission_required = ('catalog.can_view_borrowed')
 
-class AuthorCreate(CreateView):
+class AuthorCreate(PermissionLibrarian, CreateView):
     model = Author
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
     initial = {'date_of_death': '11/06/2020'}
 
-class AuthorUpdate(UpdateView):
+class AuthorUpdate(PermissionLibrarian, UpdateView):
     model = Author
     fields = '__all__' # Not recommended (potential security issue if more fields added)
 
-class AuthorDelete(DeleteView):
+class AuthorDelete(PermissionLibrarian, DeleteView):
     model = Author
-    success_url = reverse_lazy('authors')
+    success_url = reverse_lazy('author')
+
+class BookCreate(PermissionLibrarian, CreateView):
+    model = Book
+    fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
+    initial = {'date_of_death': '11/06/2020'}
+
+class BookUpdate(PermissionLibrarian, UpdateView):
+    model = Book
+    fields = '__all__' # Not recommended (potential security issue if more fields added)
+
+class BookDelete(PermissionLibrarian, DeleteView):
+    model = Book
+    success_url = reverse_lazy('author')
