@@ -8,8 +8,11 @@ import datetime
 
 def api(request):
     """ Return Hello World """
+    message = {
+    "message": "Hello World!"
+}
 
-    return HttpResponse("{'message': 'Hello, world!'}")
+    return HttpResponse(message)
 
 # Create your views here.
 def index (request):
