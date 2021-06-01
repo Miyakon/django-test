@@ -1,9 +1,14 @@
+from django.http.response import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from catalog.models import Book, Author, BookInstance, Genre
 from pprint import pprint
 import datetime
+
+def api(request):
+    """ Return Hello World """
+    return HttpResponse("Hello, world!")
 
 # Create your views here.
 def index (request):
