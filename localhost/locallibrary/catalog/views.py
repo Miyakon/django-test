@@ -12,7 +12,7 @@ def api(request):
     message = {
     "message": "Hello World!"
 }
-    message_json = json.dump(message)
+    message_json = json.dumps(message)
     return HttpResponse(message_json)
 
 # Create your views here.
