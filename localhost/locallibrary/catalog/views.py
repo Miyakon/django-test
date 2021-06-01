@@ -5,14 +5,15 @@ from django.urls import reverse
 from catalog.models import Book, Author, BookInstance, Genre
 from pprint import pprint
 import datetime
+import json
 
 def api(request):
     """ Return Hello World """
     message = {
     "message": "Hello World!"
 }
-
-    return HttpResponse(message)
+    message_json = json.dump(message)
+    return HttpResponse(message_json)
 
 # Create your views here.
 def index (request):
