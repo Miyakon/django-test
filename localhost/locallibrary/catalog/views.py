@@ -2,7 +2,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from catalog.models import Book, Author, BookInstance, Genre
+from localhost.locallibrary.catalog.models import Book, Author, BookInstance, Genre
 from pprint import pprint
 import datetime
 import json
