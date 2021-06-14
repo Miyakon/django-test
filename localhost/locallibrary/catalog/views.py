@@ -37,6 +37,9 @@ def index (request):
     # num_dorama = Book.objects.filter(genre__contains='dorama').count()
     # num_dorama = Book.objects.filter(genre__exact='dorama').count()
 
+    with open('/etc/map_token.txt') as f:
+        map_token = f.read().strip()
+
     context = {
         'num_books': num_books,
         'num_instances': num_instances,
@@ -44,6 +47,7 @@ def index (request):
         'num_authors': num_authors,
         'num_dorama': num_dorama,
         'num_visits': num_visits,
+        'map_token': map_token,
     }
 
     # Render the HTML template index.html with the data in the context variable
