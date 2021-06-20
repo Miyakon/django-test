@@ -1,22 +1,28 @@
-from django.http.response import HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from catalog.models import Book, Author, BookInstance, Genre
-from pprint import pprint
 import datetime
 import json
 
-def api(request):
-    """ Return Hello World """
-    message = {
-    "message": "Hello World!"
-}
-    message_json = json.dumps(message)
-    return HttpResponse(message_json)
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
+from django.contrib.auth.models import Group, User
+from django.http import HttpResponseRedirect
+from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse, reverse_lazy
+from django.views import generic
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from rest_framework import permissions, viewsets
+
+from catalog.forms import RenewBookForm
+from catalog.models import Author, Book, BookInstance, Genre
+from catalog.serializers import (AuthorSerializer, BookSerializer,
+                                 GenreSerializer, GroupSerializer,
+                                 UserSerializer)
 
 # Create your views here.
-def index (request):
+
+
+def index(request):
     """ View function for home page of site."""
 
     # Generate couts of some of the main objects
@@ -24,7 +30,8 @@ def index (request):
     num_instances = BookInstance.objects.all().count()
 
     # Available books (status = 'a')
-    num_instances_available = BookInstance.objects.filter(status__exact='a').count()
+    num_instances_available = BookInstance.objects.filter(
+        status__exact='a').count()
 
     # The 'all()' is implied by default.
     num_authors = Author.objects.count()
@@ -53,7 +60,6 @@ def index (request):
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
 
-from django.views import generic
 
 class BookListView(generic.ListView):
     model = Book
@@ -62,12 +68,15 @@ class BookListView(generic.ListView):
     # queryset = Book.objects.filter(title__icontains='war')[:5] # Get 5 books containing the title war
     # template_name = 'books/my_arbitrary_template_name_list.html'  # Specify your own template name/location
 
+
 class BookDetailView(generic.DetailView):
     model = Book
+
 
 class AuthorListView(generic.ListView):
     model = Author
     paginate_by = 5
+
 
 class AuthorDetailView(generic.DetailView):
     model = Author
@@ -79,16 +88,16 @@ class AuthorDetailView(generic.DetailView):
         context['works'] = works
         return context
 
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     """Generic class-based view listing books on loan to current user."""
     model = BookInstance
-    template_name ='catalog/bookinstance_list_borrowed_user.html'
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
     paginate_by = 10
 
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
+
 
 class BorrowedListView(LoginRequiredMixin, PermissionRequiredMixin, generic.ListView):
     """ Generic class-based view listing book borrowed. """
@@ -100,8 +109,6 @@ class BorrowedListView(LoginRequiredMixin, PermissionRequiredMixin, generic.List
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o')
 
-from catalog.forms import RenewBookForm
-from django.contrib.auth.decorators import login_required, permission_required
 
 @login_required
 @permission_required('catalog.can_mark_returned', raise_exception=True)
@@ -121,7 +128,7 @@ def renew_book_librarian(request, pk):
             book_instance.save()
 
             # redirect to a new URL:
-            return HttpResponseRedirect(reverse('borrowed') )
+            return HttpResponseRedirect(reverse('borrowed'))
 
     # If this is a GET (or any other method) create the default form.
     else:
@@ -135,81 +142,40 @@ def renew_book_librarian(request, pk):
 
     return render(request, 'catalog/book_renew_librarian.html', context)
 
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
 
 class PermissionLibrarian(LoginRequiredMixin, PermissionRequiredMixin):
     permission_required = ('catalog.can_view_borrowed')
+
 
 class AuthorCreate(PermissionLibrarian, CreateView):
     model = Author
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
     initial = {'date_of_death': '11/06/2020'}
 
+
 class AuthorUpdate(PermissionLibrarian, UpdateView):
     model = Author
-    fields = '__all__' # Not recommended (potential security issue if more fields added)
+    # Not recommended (potential security issue if more fields added)
+    fields = '__all__'
+
 
 class AuthorDelete(PermissionLibrarian, DeleteView):
     model = Author
     success_url = reverse_lazy('author')
+
 
 class BookCreate(PermissionLibrarian, CreateView):
     model = Book
     fields = ['title', 'author', 'summary', 'isbn', 'genre']
     initial = {'Summary': 'Summary'}
 
+
 class BookUpdate(PermissionLibrarian, UpdateView):
     model = Book
-    fields = '__all__' # Not recommended (potential security issue if more fields added)
+    # Not recommended (potential security issue if more fields added)
+    fields = '__all__'
+
 
 class BookDelete(PermissionLibrarian, DeleteView):
     model = Book
     success_url = reverse_lazy('books')
-
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from rest_framework import permissions
-from catalog.serializers import UserSerializer, GroupSerializer, BookSerializer, GenreSerializer, AuthorSerializer
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-class BookViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows books to be viewed or edited.
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-class GenreViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows genres to be viewed or edited.
-    """
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-class AuthorViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows authors to be viewed or edited.
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-    permission_classes = [permissions.IsAuthenticated]

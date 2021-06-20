@@ -49,6 +49,7 @@ urlpatterns += [
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from catalog import views
+from catalog import APIviews
 
 # Serializers define the API representation.
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -63,11 +64,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
-router.register(r'books', views.BookViewSet)
-router.register(r'genres', views.GenreViewSet)
-router.register(r'authors', views.AuthorViewSet)
+router.register(r'users', APIviews.UserViewSet)
+router.register(r'groups', APIviews.GroupViewSet)
+router.register(r'books', APIviews.BookViewSet)
+router.register(r'genres', APIviews.GenreViewSet)
+router.register(r'authors', APIviews.AuthorViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
